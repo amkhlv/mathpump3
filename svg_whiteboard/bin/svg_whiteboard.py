@@ -24,7 +24,7 @@ class OurHandler (FileSystemEventHandler):
         self.ioqml = ioqml
         self.prev_events = {}
     def on_created(self, event):
-        print("created !")
+        print("svg_whiteboard: file created")
     def on_modified(self,ev: FileModifiedEvent):
         s = ev.src_path
         dtn = datetime.now()
@@ -63,3 +63,4 @@ if __name__ == "__main__":
         time.sleep(delay)
         if ioqml.poll() is not None: break
     observer.stop()
+    print("svg_whiteboard: exiting")

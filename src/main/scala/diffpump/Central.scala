@@ -25,12 +25,13 @@ class Central(delivery: PostOffice, situation: Situation) extends Actor {
       situation.setWholeFileAckPending(towhom, fname, wholeFileAckIsPending = true)
       situation.setNewLocalContents(fname, bts)
     }
-
+    beeper ! BeepFileOut
   }
 
   def sendPatch(fname: String, ptch: String, towhom: String, ncs: CheckSum): Unit = {
     delivery.broadcast(List(towhom), ParcelPatch(patch = ptch, from = myName, filename = fname))
     situation.registerPendingPatch(towhom, fname, ncs)
+    beeper ! BeepPatchOut
   }
 
   override def receive: Receive = {
@@ -79,6 +80,7 @@ class Central(delivery: PostOffice, situation: Situation) extends Actor {
           if (situation.receiptIsOK(x.from, x.filename, x.oldSHA1, x.newSHA1)) {
             situation.registerThatPatchWasApplied(x.from, x.filename)
             situation.printout
+            beeper ! BeepReceipt
           } else {
             logger.info("  === sending whole file because receipt is NOK ===  ")
             logger.info("  === oldSHA1: " + x.oldSHA1)
@@ -88,6 +90,7 @@ class Central(delivery: PostOffice, situation: Situation) extends Actor {
           }
     case x: ParcelFileReceipt => {
       situation.setWholeFileAckPending(x.from, x.filename, wholeFileAckIsPending = false)
+      beeper ! BeepReceipt
       situation.printout
     }
     case x: FileSavedOK => delivery.broadcast(List(x.sender), ParcelFileReceipt(myName, x.filename, x.SHA1))

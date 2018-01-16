@@ -41,6 +41,7 @@ package object diffpump {
 
   val alphabet = ('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')
   val stopWatcherFileName = (1 to 8).map(_ => alphabet(Random.nextInt(alphabet.size))).mkString ++ ".eraseme"
+  new File("tmp/sound").mkdirs()
   new File("tmp/stop").mkdirs()
   new File("tmp/stop/" + stopWatcherFileName).createNewFile()
   val customConf = ConfigFactory.parseString("akka { log-dead-letters-during-shutdown = off } ")
@@ -50,4 +51,5 @@ package object diffpump {
   var prevWatcherEventTime: DateTime = new DateTime()
   val dispatcher : ActorRef = system.actorOf(Props(new Central(delivery, situation)), name = "dispatcher")
   val patcher : ActorRef = system.actorOf(Props(new Patcher(dispatcher)), name = "patcher")
+  val beeper : ActorRef = system.actorOf(Props(new Beeper()), name = "beeper")
 }

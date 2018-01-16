@@ -52,3 +52,7 @@ case class PatchFailed(sender: UserName,
                        filename: FileName) extends Signal
 
 class ChannelWasClosed extends scala.Serializable with Parcel
+
+object BeepReceipt extends scala.Serializable
+object BeepPatchOut extends scala.Serializable
+object BeepFileOut extends scala.Serializable

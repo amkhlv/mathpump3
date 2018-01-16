@@ -123,7 +123,7 @@ class PostOffice {
       case StopDelivery =>
         hdrs.put("type", "Stop".asInstanceOf[AnyRef])
     }
-    val props = new AMQP.BasicProperties.Builder().contentType("text/plain").userId(myName).headers(hdrs).build()
+    val props = new AMQP.BasicProperties.Builder().userId(myName).headers(hdrs).build()
     for (name <- recipients) {
       val body : Array[Byte] = obj match {
         case y: ParcelPatch => y.patch.getBytes(StandardCharsets.UTF_8)

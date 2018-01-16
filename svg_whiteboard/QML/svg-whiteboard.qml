@@ -32,6 +32,7 @@ ApplicationWindow {
     Image {
         id: image
         cache: false
+        fillMode: Image.Pad
         source: "../svgs/welcome.svg";
     }
 }

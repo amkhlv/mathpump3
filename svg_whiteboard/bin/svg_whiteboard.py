@@ -29,7 +29,7 @@ class OurHandler (FileSystemEventHandler):
         s = ev.src_path
         dtn = datetime.now()
         td = timedelta.max if not(s in self.prev_events.keys()) else dtn - self.prev_events[s]
-        if td.microseconds > 1000000 * delay  :
+        if td.microseconds > 1000000 * delay  and ev.src_path[-4:] == ".svg":
             #print(s)
             self.prev_events[s] = dtn
             for f in os.listdir(self.tdir):

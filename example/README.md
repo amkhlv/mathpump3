@@ -28,7 +28,7 @@ However, they may be run on the same computer for testing.
 
 On Linux, go to `alice2bob` and say:
 
-    mathpump.sh start + inkscape + show
+    mathpump.sh start + inkscape
 
 (this script assumes that `inkscape` is installed on your system)
 

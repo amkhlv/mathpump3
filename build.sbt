@@ -14,7 +14,6 @@ lazy val root = (project in file(".")).
       "com.typesafe.akka" %% "akka-actor" % "2.5.8",
       "com.rabbitmq" % "amqp-client" % "5.1.1",
       "log4j" % "log4j" % "1.2.17",
-      "org.yaml" % "snakeyaml" % "1.19",
       "joda-time" % "joda-time" % "2.9.9"
     )
   )

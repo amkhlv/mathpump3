@@ -4,11 +4,11 @@
 
 ln -s "$(pwd)/mathpump.sh" ~/.local/bin/
 
-python -m venv svg_whiteboard
+mkdir -p ~/.config/mathpump3/QML
+mkdir -p ~/.config/mathpump3/svgs
 
-(cd svg_whiteboard
-source bin/activate
-pip install -r requirements.txt)
+cp  files/QML/svg-whiteboard.qml  ~/.config/amkhlv/QML/
+cp  files/svgs/welcome.svg ~/.config/amkhlv/svgs/
 
 sbt assembly
 

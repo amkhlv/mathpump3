@@ -77,21 +77,6 @@ case $1 in
     stop)
         mv tmp/stop/* outgoing/
     ;;
-    show)
-        if [ "$2" ]
-        then
-            if [ "$2" == "+" ]
-            then
-                all_whiteboards
-                shift 2; "$0" "$@"
-            else
-                whiteboard "incoming/$2"
-                [ "$3" == "+" ] && { shift 3; "$0" "$@"; }
-            fi
-        else
-            all_whiteboards
-        fi
-    ;;
 #    beeper)
 #        beeper tmp/sound
 #        [ "$2" == "+" ] && { shift 2; "$0" "$@"; }

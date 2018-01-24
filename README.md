@@ -53,7 +53,7 @@ Building
 Then execute the following commands:
 
     git clone https://github.com/amkhlv/mathpump3
-    cd mathpump2
+    cd mathpump3
     ./setup.sh
 
 This actually takes some time, depending on your Internet connection. Maybe 20 min or so. 

@@ -39,7 +39,6 @@ class WhiteBoard(person: UserName) extends Actor {
       new FileOutputStream(newFile).getChannel.transferFrom(new FileInputStream(oldFile).getChannel, 0 , Long.MaxValue)
       val tmpFP : String = newFile.getAbsolutePath
       val cmd = """{"svgfile":"""" + tmpFP + """"}""" + "\n"
-      println("sending-->" + cmd + "<--")
       sndr ! cmd
       context.become(receiveInit)
     }

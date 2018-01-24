@@ -1,18 +1,21 @@
 import java.io._
 import java.nio.charset.StandardCharsets
+
 import org.apache.log4j.{Logger, PropertyConfigurator}
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import com.typesafe.config.{Config, ConfigFactory}
 import org.joda.time.DateTime
+
+import scala.annotation.tailrec
 import scala.concurrent.duration._
 import scala.collection.JavaConverters._
-import scala.concurrent.Future
+import scala.collection.mutable
+import scala.concurrent.{Await, Future}
 import scala.io.Source
 import scala.sys.process.{Process, ProcessIO, _}
-import scala.util.{Random, Success, Failure}
+import scala.util.{Failure, Random, Success}
 import scala.util.matching.Regex
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 package object diffpump {
@@ -69,24 +72,39 @@ package object diffpump {
       infLoop(f)
     case Failure(e) => println("ERROR ---> " + e.getMessage)
   }
-
+  val runningIOQML : mutable.HashMap[UserName, Process] = new mutable.HashMap()
   for ((u, ar) <- board) {
     val ioqml : ProcessBuilder = Process(Seq("ioqml", qmlFile))
-    def setup(s: OutputStream) : Unit = {
+    @tailrec def setup(s: OutputStream) : Unit = {
       logger.info("polling " + u)
-      ar.ask(Start)(24 hours).onComplete {
+      var willContinue = true
+      val polling = ar.ask(Start)(24 hours).andThen {
         case Success(x: String) =>
           logger.info("sending to ioqml stdin: " + x)
           s.write(x.getBytes(StandardCharsets.UTF_8))
           s.flush()
-          setup(s)
         case Failure(e) =>
           println("ERROR ---> " + e.getMessage)
+          runningIOQML.get(u) match {
+            case Some(y) => y.destroy()
+            case None => ()
+          }
+          willContinue = false
+        case _ =>
+          println("=== ERROR in IOQML stdout thread ===")
+          willContinue = false
       }
+      try {
+        Await.result(polling, 24 hours)
+      } catch {
+        case e: java.lang.InterruptedException => println("MathPump is stopping")
+      }
+      if (willContinue) setup(s)
     }
     def printStream(s: InputStream): Unit = for (ln <- Source.fromInputStream(s).getLines()) println(ln)
     def receiveErr(stderr: InputStream) = {printStream(stderr); stderr.close()}
-    ioqml.run(new ProcessIO(setup,   _ => () ,   receiveErr))
+    val r = ioqml.run(new ProcessIO(setup,   _ => () ,   receiveErr))
+    runningIOQML.put(u, r)
   }
   val patcher : ActorRef = system.actorOf(Props(new Patcher(dispatcher)), name = "patcher")
 }

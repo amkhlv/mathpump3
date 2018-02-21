@@ -47,6 +47,9 @@ Prerequisites
 
 5. Install [ioqml](https://github.com/amkhlv/ioqml)
 
+6. Make sure that the directory `~/.local/bin/` exists and is on the executable `PATH`
+
+
 Building
 --------
 

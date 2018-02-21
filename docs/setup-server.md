@@ -6,7 +6,10 @@ Please [install a recent version of RabbitMQ](https://www.rabbitmq.com/install-d
 
 (In particular, the version from Debian Stretch repository __does not seem to work__ for me,
 I needed to update to 
-`esl-erlang_20.2.2-1~debian~stretch_amd64.deb` and `rabbitmq-server_3.7.3-1_all.deb` )
+`esl-erlang_20.2.2-1~debian~stretch_amd64.deb` 
+from [Erlang website](https://www.erlang-solutions.com/resources/download.html) 
+and `rabbitmq-server_3.7.3-1_all.deb` 
+from [RabbitMQ website](https://www.rabbitmq.com/download.html))
 
 On Debian, `RabbitMQ` is started immediately after install. To stop it, type:
 

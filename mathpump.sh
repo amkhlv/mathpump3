@@ -56,7 +56,9 @@ all_whiteboards() {
 
 case $1 in
     start)
-        java -Dconfig.file=settings.conf -jar "$(find_jar)" &
+        X="$(find_jar)"
+        echo "using jar file: $X"
+        java -Dconfig.file=settings.conf -jar "$X" &
         [ "$2" == "+" ] && { shift 2; "$0" "$@"; }
     ;;
     inkscape)

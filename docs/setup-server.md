@@ -15,15 +15,16 @@ To change the password, first have to start the server:
 
 and then say:
 
-    rabbitmqctl change_password guest VGIWB0CEWwDW
-
-where `VGIWB0CEWwDW` is the new password. Let us also remove the administrative tags from `guest`:
-
-    rabbitmqctl set_user_tags guest    
+    rabbitmqctl delete_user guest
 
 
 Configuring RabbitMQ
 ====================
+
+Location of config file
+-----------------------
+
+can be found by examining the log file in `/var/log/rabbitmq/` ; it is listed somewhere at the top of the file
 
 Keys and Certificates
 ---------------------

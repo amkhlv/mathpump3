@@ -12,7 +12,7 @@ class Beeper extends Actor {
     val clip = AudioSystem.getLine(info).asInstanceOf[Clip]
     clip.open(audioIn)
     clip.start
-
+    clip.close()
   }
   override def receive: Receive = {
     case BeepFileOut => play("/ton.wav")

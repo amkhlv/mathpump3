@@ -9,21 +9,21 @@ import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 
 class WhiteBoard(person: UserName) extends Actor {
 
-  val personConf = them.get(person) match {case Some(pc) => pc}
+  val personConf = them.get(person).get
   val logger: Logger = Logger.getLogger("WHITEBOARD for " + personConf.dir)
   PropertyConfigurator.configure("log4j.properties")
 
   override def receive: Receive = receiveInit
 
   def receiveInit: Receive = {
-    case Start =>
+    case WaitForFile =>
       logger.info("becoming Activated")
       context.become(receiveActivated(sender))
     case filename : String => logger.info("too fast, skipping WhiteBoard update")
   }
 
   def receiveActivated(sndr: ActorRef): Receive = {
-    case filename : String => {
+    case ShowFile(filename)  => {
       logger.info("got filename : " + filename)
       val mainDir = new File(personConf.dir)
       val tempDir = new File(personConf.dir + "/tmp/")
@@ -42,7 +42,7 @@ class WhiteBoard(person: UserName) extends Actor {
       sndr ! cmd
       context.become(receiveInit)
     }
-    case Start => ()  //TODO will this ever happen?
+    case WaitForFile => ()  //TODO will this ever happen?
   }
 
 

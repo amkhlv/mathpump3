@@ -48,7 +48,9 @@ class PostOffice {
                                 properties: AMQP.BasicProperties,
                                 body: Array[Byte]
                                ): Unit = {
+      logger.info("got something from RabbitMQ")
       val hdrs: util.Map[String, AnyRef] = properties.getHeaders
+      // these headers are kind of JSON:    com.rabbitmq.client.impl.ValueReader.java#ValueReader
       hdrs.get("type").toString match {
         case "PatchReceipt" =>
           logger.info("got receipt for patch")
@@ -70,7 +72,8 @@ class PostOffice {
           patcher ! ParcelPatch(
             new String(body, StandardCharsets.UTF_8),
             properties.getUserId,
-            hdrs.get("filename").toString)
+            hdrs.get("filename").toString
+          )
         case "PatchError" =>
           logger.info("got patching error notification (DMP of -->" + properties.getUserId +
             "<-- was unable to apply patch)")

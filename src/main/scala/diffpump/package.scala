@@ -78,7 +78,7 @@ package object diffpump {
     @tailrec def setup(s: OutputStream) : Unit = {
       logger.info("polling " + u)
       var willContinue = true
-      val polling = ar.ask(Start)(24 hours).andThen {
+      val polling = ar.ask(WaitForFile)(24 hours).andThen {
         case Success(x: String) =>
           logger.info("sending to ioqml stdin: " + x)
           s.write(x.getBytes(StandardCharsets.UTF_8))

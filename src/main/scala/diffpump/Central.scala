@@ -12,19 +12,15 @@ class Central(delivery: PostOffice, situation: Situation) extends Actor {
 
   val logger: Logger = Logger.getLogger("CENTRAL")
   PropertyConfigurator.configure("log4j.properties")
-
-
+  
   def sendWholeFile(fname: String): Unit = {
     val bts : Array[Byte] = Files.readAllBytes(Paths.get(outDirName,fname))
     logger.info(
       "I, " + myName + ", am about to send " + bts.length.toString + " bytes read from " + fname +
         " to " + them.keys.mkString(" and "))
     delivery.broadcast(them.keys.toList, ParcelFile(bts, myName, fname))
-    for (towhom <- them.keys) {
-      situation.registerRemoteFile(towhom, fname, Utils.sha1byte(bts))
-      situation.setWholeFileAckPending(towhom, fname, wholeFileAckIsPending = true)
-      situation.setNewLocalContents(fname, bts)
-    }
+    for (towhom <- them.keys) situation.registerPendingRemoteFile(towhom, fname, Utils.sha1byte(bts))
+    situation.setNewLocalContents(fname, bts)
     beeper ! BeepFileOut
   }
 
@@ -49,8 +45,7 @@ class Central(delivery: PostOffice, situation: Situation) extends Actor {
             if (them.keys.exists(situation.noRemoteFileYet(_, basename))) {
               logger.info("  === sending whole file because NoRemoteFileYet ===  ")
               sendWholeFile(basename)
-            }
-            else {
+            } else {
               val dmp =  new DiffMatchPatch
               val ptch = dmp.patchToText(
                 dmp.patchMake(
@@ -98,5 +93,4 @@ class Central(delivery: PostOffice, situation: Situation) extends Actor {
     case x: PatchAppliedOK =>
       delivery.broadcast(List(x.sender), ParcelPatchReceipt(myName, x.filename,x.oldSHA1,x.newSHA1))
   }
-
 }

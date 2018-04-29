@@ -19,8 +19,7 @@ class Situation {
     new mutable.HashMap[UserName, mutable.HashMap[FileName, RemoteFileState]]
   for (k <- them.keys) rmt.put(k, new mutable.HashMap[FileName, RemoteFileState])
 
-  private def newRFS(wholeFilePending: Boolean) =
-    RemoteFileState(wholeFilePending, new ListBuffer[CheckSum])
+  private def newRFS(ackPending: Boolean) = RemoteFileState(ackPending, new ListBuffer[CheckSum])
 
   private def allRemoteFiles(u: UserName) : mutable.HashMap[FileName, RemoteFileState] =
     rmt.getOrElseUpdate(u, new mutable.HashMap[FileName, RemoteFileState])
@@ -33,41 +32,31 @@ class Situation {
 
   def setNewLocalContents(fn: FileName, bs: Array[Byte]) : Unit = lcl.put(fn, bs)
 
-  def setWholeFileAckPending(u: UserName, fn: FileName, wholeFileAckIsPending: Boolean) : Unit =
-    rmt.get(u) match {
-      case Some(xm: mutable.HashMap[FileName, RemoteFileState]) =>
-        xm.put(
-          fn,
-          RemoteFileState(
-            wholeFileAckIsPending,
-            xm.getOrElse(fn, newRFS(wholeFileAckIsPending)).checksums
-          )
-        )
-      case None =>
-        if (wholeFileAckIsPending) rmt.put(u, new mutable.HashMap[FileName, RemoteFileState]().+=((fn, newRFS(false))))
-        else ()
-    }
-
-  def registerRemoteFile(u: UserName, fn: FileName, cs: CheckSum) : Unit =
-    allRemoteFiles(u).update(fn, RemoteFileState(false, new ListBuffer[CheckSum]().+=:(cs)))
-
-  def registerPendingPatch(u: UserName, fn: FileName, ncs: CheckSum) : Unit = {
-    specificRemoteFile(u, fn).checksums.+=:(ncs)
-    ()
+  def setWholeFileAckPending(u: UserName, fn: FileName, wholeFileAckIsPending: Boolean) : Unit = {
+    val r = RemoteFileState(  // have to rebuild the RemoteFileState
+      wholeFileAckIsPending,
+      rmt(u).get(fn) match { case Some(xm) => xm.checksums case None => new ListBuffer[CheckSum]() }
+    )
+    rmt(u).put(fn,r)
   }
+
+  private def regRF(u: UserName, fn: FileName, cs: CheckSum, isPending: Boolean) : Unit =
+    allRemoteFiles(u).update(fn, RemoteFileState(isPending, new ListBuffer[CheckSum]().+=:(cs)))
+  def registerRemoteFile(u: UserName, fn: FileName, cs: CheckSum) : Unit = regRF(u, fn, cs, false)
+  def registerPendingRemoteFile(u: UserName, fn: FileName, cs: CheckSum) : Unit = regRF(u, fn, cs, true)
+
+  def registerPendingPatch(u: UserName, fn: FileName, ncs: CheckSum) : Unit =
+    specificRemoteFile(u, fn).checksums.+=:(ncs)
 
   def registerThatPatchWasApplied(u: UserName, fn: FileName) : Unit = {
     val rfs: mutable.Map[FileName, RemoteFileState] = allRemoteFiles(u)
     val rf: RemoteFileState = specificRemoteFile(u, fn)
-    rfs.update(
-      fn,
-      RemoteFileState(rf.wholeFileAckPending, rf.checksums.dropRight(1))
-    )
+    rfs.update(fn, RemoteFileState(false, rf.checksums.dropRight(1)))
   }
 
   def noRemoteFileYet(u: UserName, fn: FileName) : Boolean = specificRemoteFile(u,fn).checksums.length == 0
 
-  def patchesArePending(u: UserName, fn: FileName) : Boolean = specificRemoteFile(u,fn).checksums.length >= 2
+  def patchesArePending(u: UserName, fn: FileName) : Boolean = specificRemoteFile(u,fn).checksums.length > 1
 
   def wholeFileAckIsPending(u: UserName, fn: FileName) : Boolean = specificRemoteFile(u,fn).wholeFileAckPending
 

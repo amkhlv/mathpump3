@@ -10,7 +10,9 @@ object Ignore extends Signal with Parcel with Serializable
 
 object Fix extends Signal with Parcel with Serializable
 
-object Start extends Signal with Serializable
+object Start extends Signal
+case class ShowFile(fn: String) extends Signal
+object WaitForFile extends Signal
 object Continue extends Signal
 object Shutdown extends Signal
 

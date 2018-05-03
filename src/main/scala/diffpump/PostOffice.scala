@@ -48,12 +48,21 @@ class PostOffice {
                                 properties: AMQP.BasicProperties,
                                 body: Array[Byte]
                                ): Unit = {
-      logger.info("got something from RabbitMQ")
       val hdrs: util.Map[String, AnyRef] = properties.getHeaders
-      // these headers are kind of JSON:    com.rabbitmq.client.impl.ValueReader.java#ValueReader
+      /*
+      these headers are kind of JSON:   see   com.rabbitmq.client.impl.ValueReader
+
+      Let us look at com.rabbitmq.client._    :
+                   AMQP.BasicProperties  calls    impl.ContentHeaderPropertyReader
+      impl.ContentHeaderPropertyReader   calls    impl.ValueReader
+
+      https://groups.google.com/forum/#!topic/rabbitmq-users/QJ8HsqjKOjc
+
+      https://github.com/rabbitmq/rabbitmq-java-client/blob/master/src/test/java/com/rabbitmq/client/test/functional/Tables.java
+       */
       hdrs.get("type").toString match {
         case "PatchReceipt" =>
-          logger.info("got receipt for patch")
+          logger.info("got from server a receipt for patch")
           dispatcher ! ParcelPatchReceipt(
             properties.getUserId,
             hdrs.get("filename").toString,
@@ -61,25 +70,25 @@ class PostOffice {
             hdrs.get("ncs").toString
           )
         case "FileReceipt" =>
-          logger.info("got receipt for file")
+          logger.info("got from server a receipt for file")
           dispatcher ! ParcelFileReceipt(
             properties.getUserId,
             hdrs.get("filename").toString,
             hdrs.get("cs").toString
           )
         case "Patch" =>
-          logger.info("got patch")
+          logger.info("got from server a patch")
           patcher ! ParcelPatch(
             new String(body, StandardCharsets.UTF_8),
             properties.getUserId,
             hdrs.get("filename").toString
           )
         case "PatchError" =>
-          logger.info("got patching error notification (DMP of -->" + properties.getUserId +
+          logger.info("got from server patching ERROR notification (DMP of -->" + properties.getUserId +
             "<-- was unable to apply patch)")
           dispatcher ! ParcelPatchError(properties.getUserId, hdrs.get("filename").toString)
         case "File"  =>
-          logger.info("got file")
+          logger.info("got from server a file")
           patcher ! ParcelFile(body, properties.getUserId, hdrs.get("filename").toString)
       }
     }
@@ -88,7 +97,8 @@ class PostOffice {
   val outChannel: Map[String, com.rabbitmq.client.Channel] = Map((
     for (nm <- myName :: (them.keys toList)) yield {
       logger.info("creating connection for " + nm)
-      val ch = connection.createChannel(); ch.queueDeclare(nm, false, false, false, null)
+      val ch = connection.createChannel()
+      ch.queueDeclare(nm, false, false, false, null)
       nm -> ch
     }
     ): _*)
@@ -101,9 +111,9 @@ class PostOffice {
       case y: ParcelPatchReceipt => "ParcelPatchReceipt, filename:" + y.filename
       case y: ParcelPatchError => "ParcelPatchError, filename:"   + y.filename
       case StopDelivery => "Stop"
-      case u => "SOMETHING STRANGE"
+      case _ => "SOMETHING STRANGE"
     }
-    var hdrs = new java.util.HashMap[java.lang.String, AnyRef]
+    val hdrs = new java.util.HashMap[java.lang.String, AnyRef]
     obj match {
       case y: ParcelPatchReceipt =>
         hdrs.put("type", "PatchReceipt".asInstanceOf[AnyRef])
@@ -143,7 +153,7 @@ class PostOffice {
     try {
       inChannel.close()
     } catch {
-      case ex: com.rabbitmq.client.AlreadyClosedException =>
+      case _: com.rabbitmq.client.AlreadyClosedException =>
         result = false
         println("ERROR: lost inChannel")
         logger.error("lost inChannel")
@@ -152,7 +162,7 @@ class PostOffice {
       try {
         outChannel(nm).close()
       } catch {
-        case ex: com.rabbitmq.client.AlreadyClosedException =>
+        case _: com.rabbitmq.client.AlreadyClosedException =>
           result = false
           println("ERROR: lost outChannel")
           logger.error("lost outChannel")
@@ -161,7 +171,7 @@ class PostOffice {
     try {
       connection.close()
     } catch {
-      case ex: com.rabbitmq.client.AlreadyClosedException =>
+      case _: com.rabbitmq.client.AlreadyClosedException =>
         result = false
         println("ERROR: lost connection")
         logger.error("lost connection")

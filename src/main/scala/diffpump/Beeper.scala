@@ -18,6 +18,7 @@ class Beeper extends Actor {
     case BeepFileOut => play("/ton.wav")
     case BeepPatchOut => play("/drum-1.5.wav")
     case BeepReceipt => play("/drum-1.wav")
+    case BeepError => play("/bicycle_bell.wav")
   }
 
 }

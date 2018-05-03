@@ -60,11 +60,12 @@ package object diffpump {
   val customConf = ConfigFactory.parseString("akka { log-dead-letters-during-shutdown = off } ")
   val system = ActorSystem("MathPump", customConf)
   val delivery = new PostOffice()
+  val beeper : ActorRef = system.actorOf(Props(new Beeper()), name = "beeper")
   val situation = new Situation
   var prevWatcherEventTime: DateTime = new DateTime()
   val dispatcher : ActorRef = system.actorOf(Props(new Central(delivery, situation)), name = "dispatcher")
   println(dispatcher.path)
-  val beeper : ActorRef = system.actorOf(Props(new Beeper()), name = "beeper")
+
   val board : Map[UserName, ActorRef] = them.map{  case (u, pc) => (u, system.actorOf(Props(new WhiteBoard(u))))  }
   def infLoop(f : () => Unit) : Any = Future{f}.onComplete{
     case Success(_) =>

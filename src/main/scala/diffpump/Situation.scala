@@ -9,8 +9,11 @@ import scala.collection.mutable.{ListBuffer, Map}
 
 case class RemoteFileState(wholeFileAckPending : Boolean, checksums : ListBuffer[CheckSum])
 
+case class AnomalousSituation(msg: String) extends Exception
+
 class Situation {
   val logger: Logger = Logger.getLogger("SITUATION")
+
   private var lcl : Map[FileName, Array[Byte]] = new mutable.HashMap[FileName, Array[Byte]]
   for (f <- Paths.get(outDirName).toFile.listFiles())
     lcl.put(f.getName, Files.readAllBytes(Paths.get(outDirName,f.getName)))
@@ -21,11 +24,15 @@ class Situation {
 
   private def newRFS(ackPending: Boolean) = RemoteFileState(ackPending, new ListBuffer[CheckSum])
 
-  private def allRemoteFiles(u: UserName) : mutable.HashMap[FileName, RemoteFileState] =
-    rmt.getOrElseUpdate(u, new mutable.HashMap[FileName, RemoteFileState])
+  private def allRemoteFiles(u: UserName) : mutable.HashMap[FileName, RemoteFileState] =  rmt.get(u) match {
+    case Some(h) => h
+    case None =>
+      beeper ! BeepError
+      logger.error("RFS map not found for user " + u)
+      throw AnomalousSituation("RFS map not found for user " + u)
+  }
 
-  private def specificRemoteFile(u: UserName, fn: FileName) : RemoteFileState =
-    allRemoteFiles(u).getOrElseUpdate(fn, newRFS(false))
+  private def specificRemoteFile(u: UserName, fn: FileName) : Option[RemoteFileState] = allRemoteFiles(u).get(fn) 
 
   def getOldLocalContents(fn: FileName) : Array[Byte] =
     lcl.getOrElseUpdate(fn, Files.readAllBytes(Paths.get(outDirName + "/" +fn)))
@@ -40,32 +47,62 @@ class Situation {
     rmt(u).put(fn,r)
   }
 
-  private def regRF(u: UserName, fn: FileName, cs: CheckSum, isPending: Boolean) : Unit =
-    allRemoteFiles(u).update(fn, RemoteFileState(isPending, new ListBuffer[CheckSum]().+=:(cs)))
-  def registerRemoteFile(u: UserName, fn: FileName, cs: CheckSum) : Unit = regRF(u, fn, cs, false)
-  def registerPendingRemoteFile(u: UserName, fn: FileName, cs: CheckSum) : Unit = regRF(u, fn, cs, true)
+  def registerPendingRemoteFile(u: UserName, fn: FileName, cs: CheckSum) : Unit =
+    allRemoteFiles(u).update(fn, RemoteFileState(true, new ListBuffer[CheckSum]().+=:(cs)))
 
-  def registerPendingPatch(u: UserName, fn: FileName, ncs: CheckSum) : Unit =
-    specificRemoteFile(u, fn).checksums.+=:(ncs)
+  def registerPendingPatch(u: UserName, fn: FileName, ncs: CheckSum) : Unit = specificRemoteFile(u, fn) match {
+    case Some(r) => r.checksums.+=:(ncs) // http://blog.bruchez.name/2012/10/implicit-conversion-to-unit-type-in.html
+    case None =>
+      beeper ! BeepError
+      logger.error("remote file " + fn + " not found for user " + u)
+      throw AnomalousSituation("remote file " + fn + " not found for user " + u)
+  }
 
   def registerThatPatchWasApplied(u: UserName, fn: FileName) : Unit = {
     val rfs: mutable.Map[FileName, RemoteFileState] = allRemoteFiles(u)
-    val rf: RemoteFileState = specificRemoteFile(u, fn)
+    val rf: RemoteFileState = specificRemoteFile(u, fn) match {
+      case Some(r) => r
+      case None =>
+        beeper ! BeepError
+        logger.error("remote file " + fn + " not found for user " + u)
+        throw AnomalousSituation("remote file " + fn + " not found for user " + u)
+    }
     rfs.update(fn, RemoteFileState(false, rf.checksums.dropRight(1)))
   }
 
-  def noRemoteFileYet(u: UserName, fn: FileName) : Boolean = specificRemoteFile(u,fn).checksums.length == 0
+  def noRemoteFileYet(u: UserName, fn: FileName) : Boolean = specificRemoteFile(u,fn).isEmpty
 
-  def patchesArePending(u: UserName, fn: FileName) : Boolean = specificRemoteFile(u,fn).checksums.length > 1
+  def patchesArePending(u: UserName, fn: FileName) : Boolean = specificRemoteFile(u,fn) match {
+    case Some(r) => r.checksums.length > 1
+    case None =>
+      beeper ! BeepError
+      val diagMsg = "remote file " + fn + " not found for user " + u + " when checking if patches are pending"
+      logger.error(diagMsg)
+      throw AnomalousSituation(diagMsg)
+  }
 
-  def wholeFileAckIsPending(u: UserName, fn: FileName) : Boolean = specificRemoteFile(u,fn).wholeFileAckPending
+  def wholeFileAckIsPending(u: UserName, fn: FileName) : Boolean = specificRemoteFile(u,fn) match {
+    case Some(r) => r.wholeFileAckPending
+    case None =>
+      beeper ! BeepError
+      val diagMsg = "remote file " + fn + " not found for user " + u + " when checking if whole file ACK is pending"
+      logger.error(diagMsg)
+      throw AnomalousSituation(diagMsg)
+  }
 
   def receiptIsOK(u: UserName, fn: FileName, ocs: CheckSum, ncs: CheckSum) : Boolean = {
-    val css : ListBuffer[CheckSum] = specificRemoteFile(u, fn).checksums
+    val css : ListBuffer[CheckSum] = specificRemoteFile(u, fn) match {
+      case Some(r) => r.checksums
+      case None =>
+        beeper ! BeepError
+        val diagMsg = "remote file " + fn + " not found for user " + u + " when checking if receipt is OK"
+        logger.error(diagMsg)
+        throw AnomalousSituation(diagMsg)
+    }
     patchesArePending(u,fn) && (css.last == ocs) && (css.dropRight(1).last == ncs)
   }
 
-  def printout : Unit = {
+  def printout() : Unit = {
     for (u <- rmt.keys) {
       logger.info(" -" + u + ":")
       val fs = allRemoteFiles(u)

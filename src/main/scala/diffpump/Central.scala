@@ -62,7 +62,7 @@ class Central(delivery: PostOffice, situation: Situation) extends Actor {
         }
       }
     case x: ParcelPatchError =>
-      if (! situation.wholeFileAckIsPending(x.from, x.filename)) {
+      if (!(situation.noRemoteFileYet(x.from, x.filename) || situation.wholeFileAckIsPending(x.from, x.filename))) {
         logger.info("  === sending whole file because got ParcelPatchingError ===  ")
         logger.info("  === this means that the DMP of -->" + x.from + "<-- was unable to apply patch to -->" +
           x.filename + "<--")
@@ -70,7 +70,7 @@ class Central(delivery: PostOffice, situation: Situation) extends Actor {
         situation.printout
       }
     case x: ParcelPatchReceipt =>
-      if (! situation.wholeFileAckIsPending(x.from, x.filename))
+      if (!(situation.noRemoteFileYet(x.from, x.filename) || situation.wholeFileAckIsPending(x.from, x.filename)))
         if (situation.patchesArePending(x.from, x.filename))
           if (situation.receiptIsOK(x.from, x.filename, x.oldSHA1, x.newSHA1)) {
             situation.registerThatPatchWasApplied(x.from, x.filename)

@@ -15,7 +15,7 @@ class Beeper extends Actor {
     clip.close()
   }
   override def receive: Receive = {
-    case BeepFileOut => play("/ton.wav")
+    case BeepFileOut => play("/coin_flip.wav")
     case BeepPatchOut => play("/drum-1.5.wav")
     case BeepReceipt => play("/drum-1.wav")
     case BeepError => play("/bicycle_bell.wav")

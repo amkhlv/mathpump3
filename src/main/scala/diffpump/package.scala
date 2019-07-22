@@ -67,12 +67,6 @@ package object diffpump {
   println(dispatcher.path)
 
   val board : Map[UserName, ActorRef] = them.map{  case (u, pc) => (u, system.actorOf(Props(new WhiteBoard(u))))  }
-  def infLoop(f : () => Unit) : Any = Future{f}.onComplete{
-    case Success(_) =>
-      logger.info("continuing the loop")
-      infLoop(f)
-    case Failure(e) => println("ERROR ---> " + e.getMessage)
-  }
   val runningIOQML : mutable.HashMap[UserName, Process] = new mutable.HashMap()
   for ((u, ar) <- board) {
     val ioqml : ProcessBuilder = Process(Seq("ioqml", qmlFile))

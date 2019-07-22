@@ -8,7 +8,7 @@ lazy val root = (project in file(".")).
       version      := "0.1.0-SNAPSHOT"
     )),
     name := "MathPump",
-    mainClass in assembly := Some("diffpump.Main"),
+    assembly / mainClass := Some("diffpump.Main"),
     libraryDependencies ++= Seq(
       "org.bitbucket.cowwoc" % "diff-match-patch" % "1.1",
       "com.typesafe.akka" %% "akka-actor" % "2.5.8",

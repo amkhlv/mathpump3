@@ -1,3 +1,4 @@
+*~
 svg_whiteboard/bin/activate
 svg_whiteboard/bin/activate.csh
 svg_whiteboard/bin/activate.fish
@@ -18,4 +19,5 @@ mathpump.log
 sbt-dist/
 project/project/
 project/target/
+docs/*.html
 

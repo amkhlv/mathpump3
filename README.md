@@ -2,7 +2,7 @@ Third iteration of MathPump
 ===========================
 
 This version has (hopefully) improved reliability, and does not use `JavaFX`. Instead,
-it uses [ioqml](https://github.com/amkhlv/ioqml) for GUI. 
+it uses a small [Racket](https://racket-lang.org/) program for GUI. 
 
 Introduction
 ============
@@ -35,9 +35,7 @@ This manual is for Linux. The installation on Windows should be completely analo
 Prerequisites
 -------------
 
-1. Install JDK of Java 8. For example, on Debian:
-
-    aptitude install openjdk-8-jdk
+1. Install JDK
 
 2. Install [sbt](http://www.scala-sbt.org/)
 
@@ -45,7 +43,9 @@ Prerequisites
 
 4. Install [Inkscape](https://inkscape.org/)
 
-5. Install [ioqml](https://github.com/amkhlv/ioqml)
+5. Install [Racket](https://racket-lang.org/) (we use Racket for graphical windows)
+
+6. Install `librsvg` (on Debian: `sudo aptitude install librsvg2-2 librsvg2-common`)
 
 6. Make sure that the directory `~/.local/bin/` exists and is on the executable `PATH`
 

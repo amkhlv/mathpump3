@@ -1,16 +1,25 @@
 #!/usr/bin/env bash
 
-[ -L ~/.local/bin/mathpump.sh ] && { rm ~/.local/bin/mathpump.sh; }
+sbt assembly
 
+[ -d ~/.local/bin ] || { mkdir -p ~/.local/bin ; }
+[ -L ~/.local/bin/mathpump.sh ] && { rm ~/.local/bin/mathpump.sh; }
 ln -s "$(pwd)/mathpump.sh" ~/.local/bin/
 
-mkdir -p ~/.config/mathpump3/QML
-mkdir -p ~/.config/mathpump3/svgs
+[ -d ~/.local/lib/mathpump ] || { mkdir -p ~/.local/lib/mathpump ; }
+raco pkg install rsvg
+raco exe mathpump-board.rkt
+cp mathpump-board ~/.local/lib/mathpump/
 
-cp  files/QML/svg-whiteboard.qml  ~/.config/mathpump3/QML/
-cp  files/svgs/welcome.svg ~/.config/mathpump3/svgs/
 
-sbt assembly
+[ "$(echo $PATH | grep -F $HOME/.local/bin)" ] || {
+    echo "PROBLEM:"
+    echo "~/.local/bin/ is not on "'$PATH'
+    echo "please correct this!"
+    }
+
+
+
 
 
 

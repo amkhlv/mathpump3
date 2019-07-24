@@ -67,9 +67,11 @@ package object diffpump {
   println(dispatcher.path)
 
   val board : Map[UserName, ActorRef] = them.map{  case (u, pc) => (u, system.actorOf(Props(new WhiteBoard(u))))  }
+
+  val home = System.getProperty("user.home")
   val runningIOQML : mutable.HashMap[UserName, Process] = new mutable.HashMap()
   for ((u, ar) <- board) {
-    val ioqml : ProcessBuilder = Process(Seq("ioqml", qmlFile))
+    val ioqml : ProcessBuilder = Process(Seq(s"$home/.local/lib/mathpump/mathpump-board", u))
     @tailrec def setup(s: OutputStream) : Unit = {
       logger.info("polling " + u)
       var willContinue = true

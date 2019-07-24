@@ -27,7 +27,6 @@
                  (send dc clear)
                  (send dc draw-bitmap svg 0 0)
                  ])
-              (sleep 1.0)
               (loop)))))
 
 

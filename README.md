@@ -47,7 +47,10 @@ Prerequisites
 
 6. Install `librsvg` (on Debian: `sudo aptitude install librsvg2-2 librsvg2-common`)
 
-6. Make sure that the directory `~/.local/bin/` exists and is on the executable `PATH`
+7. For sound: `sudo aptitude install pulseaudio-utils`, which installs `paplay`,
+    or any other program that can play `.wav`; it should be specified in `settings.conf`
+
+8. Make sure that the directory `~/.local/bin/` exists and is on the executable `PATH`
 
 
 Building

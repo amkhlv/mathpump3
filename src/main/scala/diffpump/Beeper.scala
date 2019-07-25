@@ -1,24 +1,23 @@
 package diffpump
 
-import javax.sound.sampled.{AudioSystem, Clip, DataLine}
-
+import scala.sys.process.{Process, ProcessIO, _}
+import org.apache.log4j.{Logger, PropertyConfigurator}
 import akka.actor.Actor
 
 class Beeper extends Actor {
+
+  val logger: Logger = Logger.getLogger("BEEPER")
   def play (x: String) : Unit = {
-    val url = getClass.getResource(x)
-    val audioIn = AudioSystem.getAudioInputStream(url)
-    val info = new DataLine.Info(classOf[Clip], audioIn.getFormat())
-    val clip = AudioSystem.getLine(info).asInstanceOf[Clip]
-    clip.open(audioIn)
-    clip.start
-    clip.close()
+    if (Seq("sh", "-c", player + " " + x).! != 0) {logger.error(s"could not run: $player $x")} else {logger.info(s"playing sound: $x")}
+    ()
   }
+  val sounds = config.getConfig("sounds")
+
   override def receive: Receive = {
-    case BeepFileOut => play("/coin_flip.wav")
-    case BeepPatchOut => play("/drum-1.5.wav")
-    case BeepReceipt => play("/drum-1.wav")
-    case BeepError => play("/bicycle_bell.wav")
+    case BeepFileOut => play(sounds.getString("fileOut"))
+    case BeepPatchOut => play(sounds.getString("patchOut"))
+    case BeepReceipt => play(sounds.getString("receipt"))
+    case BeepError => play(sounds.getString("error"))
   }
 
 }

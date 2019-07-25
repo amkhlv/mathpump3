@@ -20,4 +20,6 @@ sbt-dist/
 project/project/
 project/target/
 docs/*.html
+files/Racket/mathpump-board
+
 

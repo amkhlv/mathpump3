@@ -22,43 +22,9 @@ usage:
 ENDDATA
 }
 
-MPDIR="$(dirname "$(realpath "$0")")"/
-
-find_jar() {
-
-    X="$(find "${MPDIR}target/" -maxdepth 2 -name 'MathPump-assembly*.jar')"
-
-    [ "$X" ] || { echo "ERROR: can not find jar"; exit 1; }
-
-    [[ $(echo -n $X | wc | awk '{print $1}') != 0 ]] && { echo "ERROR: more than one jar"; exit 1; }
-
-    echo -n "$X"
-
-}
-
-whiteboard() {
-    export INCOMINGDIR="$(realpath $1)"
-    (cd "$MPDIR/svg_whiteboard";
-    source bin/activate;
-    python3 bin/svg_whiteboard.py --qml QML/svg-whiteboard.qml "$INCOMINGDIR") &
-}
-
-all_whiteboards() {
-    find incoming/  -maxdepth 1  -not -path incoming/  -type d | while read U ; do whiteboard $U ; done
-}
-
-#beeper() {
-#    export SOUNDDIR="$(realpath $1)"
-#    (cd "$MPDIR/svg_whiteboard";
-#    source bin/activate;
-#    python3 bin/svg_beeper.py "$SOUNDDIR") &
-#}
-
 case $1 in
     start)
-        X="$(find_jar)"
-        echo "using jar file: $X"
-        java -Dconfig.file=settings.conf -jar "$X" &
+        java -Dconfig.file=settings.conf -jar ~/.local/lib/mathpump/mathpump-assembly.jar &
         [ "$2" == "+" ] && { shift 2; "$0" "$@"; }
     ;;
     inkscape)
@@ -79,10 +45,6 @@ case $1 in
     stop)
         mv tmp/stop/* outgoing/
     ;;
-#    beeper)
-#        beeper tmp/sound
-#        [ "$2" == "+" ] && { shift 2; "$0" "$@"; }
-#    ;;
     *)
         help
     ;;

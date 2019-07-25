@@ -9,6 +9,7 @@ lazy val root = (project in file(".")).
     )),
     name := "MathPump",
     assembly / mainClass := Some("diffpump.Main"),
+    assembly / assemblyOutputPath := file(System.getenv("HOME") + "/.local/lib/mathpump/mathpump-assembly.jar"),
     libraryDependencies ++= Seq(
       "org.bitbucket.cowwoc" % "diff-match-patch" % "1.1",
       "com.typesafe.akka" %% "akka-actor" % "2.5.8",

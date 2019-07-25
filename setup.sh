@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 
+[ -d ~/.local/bin ] || { mkdir -p ~/.local/bin ; }
+[ -d ~/.local/lib/mathpump ] || { mkdir -p ~/.local/lib/mathpump ; }
+[ -d ~/.local/share/mathpump ] || { mkdir -p ~/.local/share/mathpump ; }
+
 sbt assembly
 
-[ -d ~/.local/bin ] || { mkdir -p ~/.local/bin ; }
-[ -L ~/.local/bin/mathpump.sh ] && { rm ~/.local/bin/mathpump.sh; }
-ln -s "$(pwd)/mathpump.sh" ~/.local/bin/
-
-[ -d ~/.local/lib/mathpump ] || { mkdir -p ~/.local/lib/mathpump ; }
 raco pkg install rsvg
-raco exe mathpump-board.rkt
-cp mathpump-board ~/.local/lib/mathpump/
+(
+    cd files
+    [ -L ~/.local/bin/mathpump.sh ] && { rm ~/.local/bin/mathpump.sh ; }
+    cp mathpump.sh  ~/.local/bin/
+    cd Racket
+    raco exe mathpump-board.rkt
+    cp mathpump-board ~/.local/lib/mathpump/
+)
 
+cp files/sounds/* ~/.local/share/mathpump/
 
 [ "$(echo $PATH | grep -F $HOME/.local/bin)" ] || {
     echo "PROBLEM:"

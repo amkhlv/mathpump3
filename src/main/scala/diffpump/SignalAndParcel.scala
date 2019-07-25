@@ -55,7 +55,9 @@ case class PatchFailed(sender: UserName,
 
 class ChannelWasClosed extends scala.Serializable with Parcel
 
-object BeepReceipt extends scala.Serializable
-object BeepPatchOut extends scala.Serializable
-object BeepFileOut extends scala.Serializable
-object BeepError
+trait SoundOrder
+
+object BeepReceipt extends SoundOrder
+object BeepPatchOut extends SoundOrder
+object BeepFileOut extends SoundOrder
+object BeepError extends SoundOrder

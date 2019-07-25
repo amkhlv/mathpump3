@@ -51,6 +51,7 @@ package object diffpump {
   val rabbitVerifyCertificates = config.getBoolean("rabbitVerifyCertificates")
   val trustStore: String = config.getString("trustStore")
   val trustPassphrase: String = config.getString("trustStorePassphrase")
+  val player: String = config.getString("beeper")
 
   val alphabet = ('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')
   val stopWatcherFileName = (1 to 8).map(_ => alphabet(Random.nextInt(alphabet.size))).mkString ++ ".eraseme"
@@ -69,9 +70,9 @@ package object diffpump {
   val board : Map[UserName, ActorRef] = them.map{  case (u, pc) => (u, system.actorOf(Props(new WhiteBoard(u))))  }
 
   val home = System.getProperty("user.home")
-  val runningIOQML : mutable.HashMap[UserName, Process] = new mutable.HashMap()
+  val runningWhiteBoards : mutable.HashMap[UserName, Process] = new mutable.HashMap()
   for ((u, ar) <- board) {
-    val ioqml : ProcessBuilder = Process(Seq(s"$home/.local/lib/mathpump/mathpump-board", u))
+    val racket : ProcessBuilder = Process(Seq(s"$home/.local/lib/mathpump/mathpump-board", u))
     @tailrec def setup(s: OutputStream) : Unit = {
       logger.info("polling " + u)
       var willContinue = true
@@ -82,7 +83,7 @@ package object diffpump {
           s.flush()
         case Failure(e) =>
           println("ERROR ---> " + e.getMessage)
-          runningIOQML.get(u) match {
+          runningWhiteBoards.get(u) match {
             case Some(y) => y.destroy()
             case None => ()
           }
@@ -100,8 +101,8 @@ package object diffpump {
     }
     def printStream(s: InputStream): Unit = for (ln <- Source.fromInputStream(s).getLines()) println(ln)
     def receiveErr(stderr: InputStream) = {printStream(stderr); stderr.close()}
-    val r = ioqml.run(new ProcessIO(setup,   _ => () ,   receiveErr))
-    runningIOQML.put(u, r)
+    val r = racket.run(new ProcessIO(setup,   _ => () ,   receiveErr))
+    runningWhiteBoards.put(u, r)
   }
   val patcher : ActorRef = system.actorOf(Props(new Patcher(dispatcher)), name = "patcher")
 }

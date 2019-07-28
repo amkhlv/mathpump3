@@ -35,20 +35,22 @@ This manual is for Linux. The installation on Windows should be completely analo
 Prerequisites
 -------------
 
-1. Install JDK
+1. Install JDK (on Debian: `sudo aptitude install default-jdk`)
 
-2. Install [sbt](http://www.scala-sbt.org/)
+2. Install [sbt](http://www.scala-sbt.org/) (on Debian: `sudo aptitude install sbt`)
 
-3. Install [git](https://git-scm.com/)
+3. Install [git](https://git-scm.com/) (on Debian: `sudo aptitude install git`)
 
-4. Install [Inkscape](https://inkscape.org/)
+4. Install [Inkscape](https://inkscape.org/) (on Debian: `sudo aptitude install inkscape`)
 
 5. Install [Racket](https://racket-lang.org/) (we use Racket for graphical windows)
+   (on Debian: `sudo aptitude install --without-recommends racket`)
 
-6. Install `librsvg` (on Debian: `sudo aptitude install librsvg2-2 librsvg2-common`)
+6. Install `librsvg` (on Debian: `sudo aptitude install librsvg2-2 librsvg2-common`, on Mac OS/X: `brew install librsvg`)
 
 7. For sound: `sudo aptitude install pulseaudio-utils`, which installs `paplay`,
-    or any other program that can play `.wav`; it should be specified in `settings.conf`
+    or any other program that can play `.wav`. 
+    It should be specified in `settings.conf`, _e.g._ : `beeper = "paplay"`
 
 8. Make sure that the directory `~/.local/bin/` exists and is on the executable `PATH`
 

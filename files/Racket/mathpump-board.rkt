@@ -2,32 +2,34 @@
 
 (require racket/cmdline racket/class racket/match json rsvg)
 
-(define wintitle
-  (command-line #:args (ttl) ttl))
+(define wintitle (command-line #:args (ttl) ttl))
 
-
+(define bitmap #f)
 
 (define window
   (new frame%
        [label wintitle]
-       [width 800]
-       [height 600]))
+       [width 400]
+       [height 300]))
 
 (define canvas
   (new canvas%
-       [parent window]))
+       [parent window]
+       [paint-callback
+        (lambda (can dc)
+          (when bitmap (send dc draw-bitmap bitmap 0 0))
+          )]))
 
 (define listener
   (thread (lambda ()
             (let loop ()
               (match (read-json)
                 [(hash-table ('svgfile f))
-                 (define svg (load-svg-from-file f))
-                 (define dc (send canvas get-dc))
-                 (send dc clear)
-                 (send dc draw-bitmap svg 0 0)
+                 (set! bitmap (load-svg-from-file f))
+                 (send canvas min-client-width (send bitmap get-width))
+                 (send canvas min-client-height (send bitmap get-height))
+                 (send window refresh)
                  ])
               (loop)))))
-
 
 (send window show #t)

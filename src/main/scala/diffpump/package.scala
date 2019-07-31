@@ -3,20 +3,14 @@ import java.nio.charset.StandardCharsets
 
 import org.apache.log4j.{Logger, PropertyConfigurator}
 import akka.actor.{ActorRef, ActorSystem, Props}
-import akka.pattern.ask
 import com.typesafe.config.{Config, ConfigFactory}
 import org.joda.time.DateTime
 
-import scala.annotation.tailrec
-import scala.concurrent.duration._
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.concurrent.{Await, Future}
-import scala.io.Source
 import scala.sys.process.{Process, ProcessIO, _}
 import scala.util.{Failure, Random, Success}
 import scala.util.matching.Regex
-import scala.concurrent.ExecutionContext.Implicits.global
 
 package object diffpump {
   type UserName = String
@@ -71,38 +65,5 @@ package object diffpump {
 
   val home = System.getProperty("user.home")
   val runningWhiteBoards : mutable.HashMap[UserName, Process] = new mutable.HashMap()
-  for ((u, ar) <- board) {
-    val racket : ProcessBuilder = Process(Seq(s"$home/.local/lib/mathpump/mathpump-board", u))
-    @tailrec def setup(s: OutputStream) : Unit = {
-      logger.info("polling " + u)
-      var willContinue = true
-      val polling = ar.ask(WaitForFile)(24 hours).andThen {
-        case Success(x: String) =>
-          logger.info("sending to ioqml stdin: " + x)
-          s.write(x.getBytes(StandardCharsets.UTF_8))
-          s.flush()
-        case Failure(e) =>
-          println("ERROR ---> " + e.getMessage)
-          runningWhiteBoards.get(u) match {
-            case Some(y) => y.destroy()
-            case None => ()
-          }
-          willContinue = false
-        case _ =>
-          println("=== ERROR in IOQML stdout thread ===")
-          willContinue = false
-      }
-      try {
-        Await.result(polling, 24 hours)
-      } catch {
-        case e: java.lang.InterruptedException => println("MathPump is stopping")
-      }
-      if (willContinue) setup(s)
-    }
-    def printStream(s: InputStream): Unit = for (ln <- Source.fromInputStream(s).getLines()) println(ln)
-    def receiveErr(stderr: InputStream) = {printStream(stderr); stderr.close()}
-    val r = racket.run(new ProcessIO(setup,   _ => () ,   receiveErr))
-    runningWhiteBoards.put(u, r)
-  }
   val patcher : ActorRef = system.actorOf(Props(new Patcher(dispatcher)), name = "patcher")
 }

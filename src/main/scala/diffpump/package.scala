@@ -61,6 +61,7 @@ package object diffpump {
   println(dispatcher.path)
 
   val viewer: StringOps = config.getString("viewer")
+  val mustCopy: Boolean = config.getBoolean("mustCopy")
   val board : Map[UserName, ActorRef] = them.map{  case (u, pc) => (u, system.actorOf(Props(new WhiteBoard(u))))  }
 
   val home = System.getProperty("user.home")

@@ -31,7 +31,7 @@
                  (send window refresh)
                  (loop)
                  ]
-                [(hash-table ('command c))
+                [(hash-table ('command "exit"))
                  (display "exiting")
                  (exit)]
                 [eof #t]

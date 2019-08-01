@@ -14,6 +14,8 @@ raco pkg install rsvg
     cd Racket
     raco exe mathpump-board.rkt
     cp mathpump-board ~/.local/lib/mathpump/
+    raco exe mathpump-headless.rkt
+    cp mathpump-headless ~/.local/lib/mathpump/
 )
 
 cp files/sounds/* ~/.local/share/mathpump/

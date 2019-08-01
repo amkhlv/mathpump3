@@ -29,15 +29,17 @@ class WhiteBoard(person: UserName) extends Actor {
       for (f <- tempDir.listFiles()) {
         if (f.isFile) {f.delete()}
       }
-      val dt : DateTime = new DateTime()
-      val dtfmts : DateTimeFormatter = DateTimeFormat.forPattern("y-M-d--H-m-SSS")
-      val tmpFileName : String = dtfmts.print(dt) + ".svg"
-      val newFile : File = new File(personConf.dir + "/tmp/" + tmpFileName)
       val oldFile : File = new File(personConf.dir + "/" + filename)
-      //copy to tmpfile:
-      new FileOutputStream(newFile).getChannel.transferFrom(new FileInputStream(oldFile).getChannel, 0 , Long.MaxValue)
-      val tmpFP : String = newFile.getAbsolutePath
-      val cmd = """{"svgfile":"""" + tmpFP + """"}""" + "\n"
+      val fp: String = if (mustCopy) {
+        val dt : DateTime = new DateTime()
+        val dtfmts : DateTimeFormatter = DateTimeFormat.forPattern("y-M-d--H-m-SSS")
+        val tmpFileName : String = dtfmts.print(dt) + ".svg"
+        val newFile : File = new File(personConf.dir + "/tmp/" + tmpFileName)
+        //copy to tmpfile:
+        new FileOutputStream(newFile).getChannel.transferFrom(new FileInputStream(oldFile).getChannel, 0 , Long.MaxValue)
+        newFile.getAbsolutePath
+      } else { oldFile.getAbsolutePath }
+      val cmd = s"""{"svgfile":"$fp"}""" + "\n"
       sndr ! cmd
       context.become(receiveInit)
     }

@@ -8,7 +8,7 @@ class Beeper extends Actor {
 
   val logger: Logger = Logger.getLogger("BEEPER")
   def play (x: String) : Unit = {
-    if (Seq("sh", "-c", player + " " + x).! != 0) {logger.error(s"could not run: $player $x")} else {logger.info(s"playing sound: $x")}
+    if (Seq("sh", "-c", player.replaceAllLiterally("%", x)).! != 0) {logger.error(s"could not run: $player $x")} else {logger.info(s"playing sound: $x")}
     ()
   }
   val sounds = config.getConfig("sounds")

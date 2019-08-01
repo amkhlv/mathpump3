@@ -7,6 +7,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.joda.time.DateTime
 
 import scala.collection.JavaConverters._
+import scala.collection.immutable.StringOps
 import scala.collection.mutable
 import scala.sys.process.{Process, ProcessIO, _}
 import scala.util.{Failure, Random, Success}
@@ -18,8 +19,6 @@ package object diffpump {
   type CheckSum = String
   val logger: Logger = Logger.getLogger("PACKAGE OBJECT")
   PropertyConfigurator.configure("log4j.properties")
-
-  val qmlFile = System.getenv("HOME") + "/.config/mathpump3/QML/svg-whiteboard.qml"
 
   val config = ConfigFactory.load()
   val myName = config.getString("me.name")
@@ -45,7 +44,7 @@ package object diffpump {
   val rabbitVerifyCertificates = config.getBoolean("rabbitVerifyCertificates")
   val trustStore: String = config.getString("trustStore")
   val trustPassphrase: String = config.getString("trustStorePassphrase")
-  val player: String = config.getString("beeper")
+  val player: StringOps = config.getString("beeper")
 
   val alphabet = ('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')
   val stopWatcherFileName = (1 to 8).map(_ => alphabet(Random.nextInt(alphabet.size))).mkString ++ ".eraseme"
@@ -61,9 +60,9 @@ package object diffpump {
   val dispatcher : ActorRef = system.actorOf(Props(new Central(delivery, situation)), name = "dispatcher")
   println(dispatcher.path)
 
+  val viewer: StringOps = config.getString("viewer")
   val board : Map[UserName, ActorRef] = them.map{  case (u, pc) => (u, system.actorOf(Props(new WhiteBoard(u))))  }
 
   val home = System.getProperty("user.home")
-  val runningWhiteBoards : mutable.HashMap[UserName, Process] = new mutable.HashMap()
   val patcher : ActorRef = system.actorOf(Props(new Patcher(dispatcher)), name = "patcher")
 }

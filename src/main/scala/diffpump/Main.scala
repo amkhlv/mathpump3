@@ -4,55 +4,52 @@ import java.io.{InputStream, OutputStream}
 import java.nio.charset.StandardCharsets
 
 import akka.actor.PoisonPill
+
 import scala.concurrent.duration._
 import akka.pattern.ask
-import scala.concurrent.{Await, ExecutionContext}
+
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
 import ExecutionContext.Implicits.global
 import scala.annotation.tailrec
 import scala.io.Source
 import scala.sys.process.{Process, ProcessBuilder, ProcessIO}
+import com.typesafe.config.Config
+import org.apache.log4j.Logger
+
+import scala.collection.immutable.StringOps
 
 object Main extends App {
 
-  for ((u, ar) <- board) {
-    val racket : ProcessBuilder = Process(Seq(s"$home/.local/lib/mathpump/mathpump-board", u))
+  val logger: Logger = Logger.getLogger("MAIN")
+  val runningWhiteBoards : Map[UserName, Process] = for ((u, ar) <- board) yield {
+    val racket : ProcessBuilder = Process(Seq("sh", "-c", viewer.replaceAllLiterally("%", u)))
     @tailrec def setup(s: OutputStream) : Unit = {
       logger.info("polling " + u)
-      var willContinue = true
-      val polling = ar.ask(WaitForFile)(24 hours).andThen {
-        case Success(x: String) =>
-          logger.info("sending to ioqml stdin: " + x)
+      val mustContinue: Future[Boolean] = ar.ask(WaitForFile)(24 hours).map {
+        case x: String => {
+          logger.info("sending to whiteboard: " + x)
           s.write(x.getBytes(StandardCharsets.UTF_8))
           s.flush()
-        case Failure(e) =>
-          println("ERROR ---> " + e.getMessage)
-          runningWhiteBoards.get(u) match {
-            case Some(y) => y.destroy()
-            case None => ()
-          }
-          willContinue = false
-        case _ =>
-          println("=== ERROR in IOQML stdout thread ===")
-          willContinue = false
+          true
+        }
+        case Shutdown => {
+          logger.info(s"whiteboard for user $u will be SHUTDOWN")
+          s.write(("""{"command": "exit"}""" + "\n").getBytes(StandardCharsets.UTF_8))
+          s.flush()
+          false
+        }
       }
-      try {
-        Await.result(polling, 24 hours)
-      } catch {
-        case e: java.lang.InterruptedException => println("MathPump is stopping")
-      }
-      if (willContinue) setup(s)
+      if (Await.result(mustContinue, 24 hours)) { setup(s) } else { s.close() }
     }
     def printStream(s: InputStream): Unit = for (ln <- Source.fromInputStream(s).getLines()) println(ln)
-    def receiveErr(stderr: InputStream) = {printStream(stderr); stderr.close()}
+    def receiveErr(stderr: InputStream): Unit = {printStream(stderr); stderr.close()}
     val r = racket.run(new ProcessIO(setup,   _ => () ,   receiveErr))
-    runningWhiteBoards.put(u, r)
+    (u -> r)
   }
 
-  new Watcher(dispatcher).run match {
-    case WatcherRequestsShutdown => ()
-  }
+  new Watcher(dispatcher).run
 
   //shutdown :
   dispatcher ! PoisonPill

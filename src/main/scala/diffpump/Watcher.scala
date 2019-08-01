@@ -8,13 +8,13 @@ import org.joda.time.{DateTime, Duration}
 
 import scala.language.postfixOps
 
-class Watcher(sndr: ActorRef) {
+class Watcher(dispatch: ActorRef) {
   val logger: Logger = Logger.getLogger("WATCHER")
   PropertyConfigurator.configure("log4j.properties")
   var happy = true
   val fsys : FileSystem = Paths.get(".").getFileSystem
   var prevTime: DateTime = new DateTime()
-  def run: Signal = {
+  def run: Unit = {
     while (happy) {
       //Thread.sleep(1000);
       logger.info("continuing")
@@ -34,10 +34,10 @@ class Watcher(sndr: ActorRef) {
             val signalFile = Paths.get(outDirName, stopWatcherFileName).toFile
             if (signalFile.exists()) {
               signalFile.delete()
-              happy = false
-              logger.info("Detected (and deleted) the signal file; sending WatcherRequestsShutdown to Commander")
-              sndr ! WatcherRequestsShutdown
             }
+            happy = false
+            logger.info("Detected (and deleted) the signal file; sending Shutdown signals to whiteboards")
+            for (b <- board.values) { b ! Shutdown }
           } else if (Utils.notIgnored(evPath.context().toString)) {
             val nowTime = new DateTime()
             val passed = new Duration(prevTime, nowTime)
@@ -47,7 +47,7 @@ class Watcher(sndr: ActorRef) {
             if ((evKind == StandardWatchEventKinds.ENTRY_CREATE) || (evKind == StandardWatchEventKinds.ENTRY_MODIFY)) {
               Thread.sleep(300)
               logger.info("Sending message to CENTRAL about " + evKind.toString + " of: " + evCont.toString)
-              sndr ! NotificationOfFilesystemEvent(
+              dispatch ! NotificationOfFilesystemEvent(
                 evKind,
                 evCont match {
                   case p: Path => p
@@ -61,6 +61,5 @@ class Watcher(sndr: ActorRef) {
       watcher.close()
       if (! happy) logger.info("--- EXITING WATCHER ---")
     }
-    WatcherRequestsShutdown
   }
 }

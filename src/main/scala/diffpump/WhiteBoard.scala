@@ -25,7 +25,6 @@ class WhiteBoard(person: UserName) extends Actor {
   def receiveActivated(sndr: ActorRef): Receive = {
     case ShowFile(filename)  => {
       logger.info("got filename : " + filename)
-      val mainDir = new File(personConf.dir)
       val tempDir = new File(personConf.dir + "/tmp/")
       for (f <- tempDir.listFiles()) {
         if (f.isFile) {f.delete()}
@@ -42,6 +41,7 @@ class WhiteBoard(person: UserName) extends Actor {
       sndr ! cmd
       context.become(receiveInit)
     }
+    case Shutdown => sndr ! Shutdown
     case WaitForFile => ()  //TODO will this ever happen?
   }
 

@@ -29,7 +29,12 @@
                  (send canvas min-client-width (send bitmap get-width))
                  (send canvas min-client-height (send bitmap get-height))
                  (send window refresh)
-                 ])
-              (loop)))))
+                 (loop)
+                 ]
+                [(hash-table ('command c))
+                 (display "exiting")
+                 (exit)]
+                [eof #t]
+                )))))
 
 (send window show #t)

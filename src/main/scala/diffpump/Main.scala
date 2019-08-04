@@ -56,7 +56,7 @@ object Main extends App {
   patcher ! PoisonPill
   beeper ! PoisonPill
   system.terminate().onComplete {
-    case Success(_) => println("terminated actor system")
+    case Success(_) => ()
     case Failure(_) => println("error when terminating actor system")
   }
   delivery.close()

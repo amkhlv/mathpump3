@@ -11,9 +11,11 @@ class Beeper extends Actor {
     if (Seq("sh", "-c", player.replaceAllLiterally("%", x)).! != 0) {logger.error(s"could not run: $player $x")} else {logger.info(s"playing sound: $x")}
     ()
   }
-  val sounds = config.getConfig("sounds")
+  lazy val sounds = config.getConfig("sounds")
 
-  override def receive: Receive = {
+  override def receive: Receive = if (silent) {
+    case _ => ()
+  } else {
     case BeepFileOut => play(sounds.getString("fileOut"))
     case BeepPatchOut => play(sounds.getString("patchOut"))
     case BeepReceipt => play(sounds.getString("receipt"))

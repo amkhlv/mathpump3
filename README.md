@@ -64,7 +64,7 @@ Then execute the following commands:
     cd mathpump3
     ./setup.sh
 
-This actually takes some time, depending on your Internet connection. Maybe 20 min or so. 
+This actually takes some time, maybe 10 min or so. 
 
 Configuration and running
 =========================

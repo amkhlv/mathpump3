@@ -31,10 +31,8 @@ object Utils {
   }
 
   def writeUnicodeStringToFilePath(path: Path, data: String) = Files.write(path, data.getBytes(StandardCharsets.UTF_8))
-    // printToFile(path.toFile())(p => p.println(data))
 
   def readUnicodeStringFromFilePath(path: Path) : String = new String(Files.readAllBytes(path), StandardCharsets.UTF_8)
-  //def readFromFilePath(filePath: Path): String =  Source.fromFile(filePath.toFile).mkString
 
   def resourceFile(x: String): java.io.File = Paths.get(getClass.getResource(x).getPath).toFile
 

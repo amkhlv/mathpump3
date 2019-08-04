@@ -44,6 +44,7 @@ package object diffpump {
   val rabbitVerifyCertificates = config.getBoolean("rabbitVerifyCertificates")
   val trustStore: String = config.getString("trustStore")
   val trustPassphrase: String = config.getString("trustStorePassphrase")
+  val silent: Boolean = config.getBoolean("silent")
   val player: StringOps = config.getString("beeper")
 
   val alphabet = ('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')
@@ -58,7 +59,6 @@ package object diffpump {
   val situation = new Situation
   var prevWatcherEventTime: DateTime = new DateTime()
   val dispatcher : ActorRef = system.actorOf(Props(new Central(delivery, situation)), name = "dispatcher")
-  println(dispatcher.path)
 
   val viewer: StringOps = config.getString("viewer")
   val mustCopy: Boolean = config.getBoolean("mustCopy")

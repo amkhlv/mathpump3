@@ -25,18 +25,16 @@ package object diffpump {
   val myPassword = config.getString("me.password")
   val outDirName = config.getString("me.dir")
   val ignoredFilenamePatterns : List[Regex] = config.getStringList("me.ignore").asScala.map(x => x.r).toList
-  case class PersonConfig(dir: String, width: Int, height: Int)
+  case class PersonConfig(dir: String)
   val them: Map[String, PersonConfig] = Map((for (c <- config.getConfigList("them").asScala) yield {
-    val (nm: String , dir: String, width: Int, height: Int) = c match {
+    val (nm: String , dir: String) = c match {
       case conf: Config => (
         conf.getString("name"),
         conf.getString("dir"),
-        conf.getInt("width"),
-        conf.getInt("height")
         )
     }
     new File(dir + "/tmp").mkdirs()
-    (nm -> PersonConfig(dir = dir, width = width, height = height))
+    (nm -> PersonConfig(dir = dir))
   }):_*)
   val rabbitURL = config.getString("rabbitURL")
   val rabbitPort = config.getInt("rabbitPort")

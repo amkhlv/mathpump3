@@ -34,6 +34,7 @@ package object diffpump {
         )
     }
     new File(dir + "/tmp").mkdirs()
+    new File(dir + "/snapshots").mkdir()
     (nm -> PersonConfig(dir = dir))
   }):_*)
   val rabbitURL = config.getString("rabbitURL")

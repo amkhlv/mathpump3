@@ -1,7 +1,8 @@
 package diffpump
 
-import java.io.{InputStream, OutputStream}
+import java.io.{BufferedReader, InputStream, InputStreamReader, OutputStream}
 import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Paths}
 
 import akka.actor.PoisonPill
 
@@ -25,7 +26,7 @@ object Main extends App {
   val logger: Logger = Logger.getLogger("MAIN")
   val runningWhiteBoards : Map[UserName, Process] = for ((u, ar) <- board) yield {
     val racket : ProcessBuilder = Process(Seq("sh", "-c", viewer.replaceAllLiterally("%", u)))
-    @tailrec def setup(s: OutputStream) : Unit = {
+    @tailrec def setupOut(s: OutputStream) : Unit = {
       logger.info("polling " + u)
       val mustContinue: Future[Boolean] = ar.ask(WaitForFile)(24 hours).map {
         case x: String => {
@@ -41,11 +42,26 @@ object Main extends App {
           false
         }
       }
-      if (Await.result(mustContinue, 24 hours)) { setup(s) } else { s.close() }
+      if (Await.result(mustContinue, 24 hours)) { setupOut(s) } else { s.close() }
+    }
+    def setupIn(s: InputStream) : Unit = {
+      val reader : BufferedReader = new BufferedReader(new InputStreamReader(s))
+      var cmd : String = "";
+      while ({cmd = reader.readLine(); cmd != null}) {
+        cmd match {
+          case "exit" => {
+            logger.info("user requested shutdown")
+            val stopFileOrig = Paths.get(s"tmp/stop/$stopWatcherFileName");
+            val stopFileDest = Paths.get(outDirName, stopWatcherFileName) ;
+            Files.move(stopFileOrig, stopFileDest)
+          }
+          case x => logger.error(s"unknown command $x on whiteboard stdout")
+        }
+      }
     }
     def printStream(s: InputStream): Unit = for (ln <- Source.fromInputStream(s).getLines()) println(ln)
     def receiveErr(stderr: InputStream): Unit = {printStream(stderr); stderr.close()}
-    val r = racket.run(new ProcessIO(setup,   _ => () ,   receiveErr))
+    val r = racket.run(new ProcessIO(setupOut,   setupIn ,   receiveErr))
     (u -> r)
   }
 

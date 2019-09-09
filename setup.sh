@@ -7,11 +7,14 @@
 sbt assembly
 
 raco pkg install rsvg
+
 (
+    [ -e ~/.local/bin/mathpump.sh ] && { rm ~/.local/bin/mathpump.sh ; }
     cd files
-    [ -L ~/.local/bin/mathpump.sh ] && { rm ~/.local/bin/mathpump.sh ; }
-    cp mathpump.sh  ~/.local/bin/
+    # cp mathpump.sh  ~/.local/bin/
     cd Racket
+    raco exe mathpump.rkt
+    cp mathpump ~/.local/bin/
     raco exe mathpump-board.rkt
     cp mathpump-board ~/.local/lib/mathpump/
     raco exe mathpump-headless.rkt

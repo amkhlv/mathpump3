@@ -1,6 +1,7 @@
 #lang racket/gui
 
-(require racket/cmdline
+(require "mathpump.rkt"
+         racket/cmdline
          racket/class
          racket/path
          racket/date
@@ -66,7 +67,11 @@
   (new button%
        [label "exit all"]
        [parent buttons]
-       [callback (lambda (btn ev) (displayln "exit") (flush-output))]
+       [callback (lambda (btn ev)
+                   (mathpump-kill-inkscape)
+                   (displayln "exit")
+                   (flush-output)
+                   )]
        ))
 
 (define listener

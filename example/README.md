@@ -16,7 +16,7 @@ you should obtain them from Charlie
 Missing settings
 ----------------
 
-In `alice2bob/settings.conf` and `bob2alice/settings.conf`, the actual values of `password` and `trustStorePassphrase` 
+In `alice2bob/mathpump.conf` and `bob2alice/mathpump.conf`, the actual values of `password` and `trustStorePassphrase` 
 should be the ones provided by Charlie
 
 
@@ -28,7 +28,7 @@ However, they may be run on the same computer for testing.
 
 On Linux, go to `alice2bob` and say:
 
-    mathpump.sh start + inkscape
+    mathpump
 
 (this script assumes that `inkscape` is installed on your system)
 
@@ -36,5 +36,7 @@ Then go to `bob2alice` and execute the same command as before.
 
 To stop, say:
 
-    mathpump.sh stop
+    mathpump -x -i
+
+or press  "exit all" button.
 

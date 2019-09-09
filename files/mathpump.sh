@@ -6,7 +6,7 @@ usage:
 
   $(basename "$0") start
 
-  -- starts MathPump in the current dir, which should contain settings.conf
+  -- starts MathPump in the current dir, which should contain mathpump.conf
 
 
   $(basename "$0") stop
@@ -24,7 +24,7 @@ ENDDATA
 
 case $1 in
     start)
-        java -Dconfig.file=settings.conf -jar ~/.local/lib/mathpump/mathpump-assembly.jar &
+        java -Dconfig.file=mathpump.conf -jar ~/.local/lib/mathpump/mathpump-assembly.jar &
         [ "$2" == "+" ] && { shift 2; "$0" "$@"; }
     ;;
     inkscape)

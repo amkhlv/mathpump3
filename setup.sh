@@ -15,6 +15,8 @@ raco pkg install rsvg
     cd Racket
     raco exe mathpump.rkt
     cp mathpump ~/.local/bin/
+    raco exe mathpump-inkwell.rkt
+    cp mathpump-inkwell ~/.local/bin/
     raco exe mathpump-board.rkt
     cp mathpump-board ~/.local/lib/mathpump/
     raco exe mathpump-headless.rkt

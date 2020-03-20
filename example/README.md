@@ -26,7 +26,7 @@ Running
 Obviously the profiles `alice2bob` and `bob2alice` are meant to be run on two different computers. 
 However, they may be run on the same computer for testing.
 
-On Linux, go to `alice2bob` and say:
+Go to `alice2bob` and say:
 
     mathpump
 
@@ -38,5 +38,8 @@ To stop, say:
 
     mathpump -x -i
 
-or press  "exit all" button.
+or press  "exit all" button. To see additional options:
+
+    mathpump -h
+
 

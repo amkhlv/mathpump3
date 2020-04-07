@@ -121,5 +121,11 @@ Inkscape hints
 --------------
 
 I prefer, for drawing formulas, the calligraphic tool (keyboard shortcut `c`).
+I find it __crucial to use zoom-in of Inkscape__ ; when drawing a formula I typically set zoom
+to about 300% . You can zoom to a region by marking rectangle with pressed `Shift` and
+lower button of e-pen, together. Just pressing lower button of e-pen moves the whiteboard.
+(Of course, your audience does not see that you zoom. This is one advantage over desktop sharing.)
+On the other hand, when zoomed-out, the drawn lines become thicker. If you need to highlight
+a formula, just zoom out and then draw a red circle around it. 
 
 See more hints in [Inkscape hints](docs/inkscape.md)

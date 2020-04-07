@@ -79,4 +79,47 @@ You will need three things from Charlie:
 2. password
 3. truststore passphrase
 
+Use hints
+=========
 
+Voice channel
+-------------
+
+There is no voice channel in `MathPump`. I recommend Skype conference call for voice,
+or WhatsApp if less than 5 people.
+
+
+Chaining MathPump with SVGServer
+--------------------------------
+
+Suppose that you are giving a distributed talk over Internet. Everyone in the audience is sitting
+at home, with their own computer. It is not practical to request everyone to install MathPump.
+In this situation, chain MathPump with [SVGServer2](https://github.com/amkhlv/SVGServer2), in the following way:
+
+1. On the same server where `RabbitMQ` runs, run a headless instance of MathPump. "Headless" means 
+   setting  `viewer = "~/.local/lib/mathpump/mathpump-headless %"` (instead of `mathpump-board`)
+   and `beeper = "true"` (`true` is the Linux command which does nothing)
+
+2. Make [SVGServer2](https://github.com/amkhlv/SVGServer2) to watch the incoming directory of that headless MathPump
+   (the `dir` in `instance.xml`).
+
+3. [SVGServer2](https://github.com/amkhlv/SVGServer2) serves your talk via its web interface
+
+Now your audience can watch your talk in their browsers.
+
+Using BystroTeX to prefabricate formulas
+----------------------------------------
+
+When giving a talk, it is useful to have prefab formulas. 
+Since our format is `SVG`, we need `SVG` formulas.
+They can be prepared by [BystroTeX](http://andreimikhailov.com/slides/bystroTeX/slides-manual/index.html).
+Prepare a ``skeleton'' BystroTeX slide containing main formulas of the talk.
+Then, in Firefox, right click on the formula, "Copy Image" and then paste in Inkscape.
+
+
+Inkscape hints
+--------------
+
+I prefer, for drawing formulas, the calligraphic tool (keyboard shortcut `c`).
+
+See more hints in [Inkscape hints](docs/inkscape.md)

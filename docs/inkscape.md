@@ -33,4 +33,8 @@ Cross  at the left end of the __color bar__ means "make invisible"
 
 Click on a color to set fill, `shift`-click to set stroke
 
+## Complete list of keyboard shortcuts
+
+Can be found [here](http://www-mdp.eng.cam.ac.uk/web/CD/deskapps/inkscape/keyshortcuts.html)
+
 

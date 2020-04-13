@@ -86,7 +86,10 @@ Voice channel
 -------------
 
 There is no voice channel in `MathPump`. I recommend Skype conference call for voice,
-or WhatsApp if less than 5 people.
+or WhatsApp if less than 5 people. 
+
+Also, __one-way__ streaming 
+[can be done by VLC](https://github.com/amkhlv/usr/blob/master/share/notes/audio-video/VLC.md)
 
 
 Chaining MathPump with SVGServer

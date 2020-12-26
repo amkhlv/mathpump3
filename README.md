@@ -52,7 +52,7 @@ Prerequisites
     or any other program that can play `.wav`. 
     It should be specified in `mathpump.conf`, _e.g._ : `beeper = "paplay"`
 
-8. Make sure that the directory `~/.local/bin/` exists and is on the executable `PATH`
+8. Make sure that the directory `~/.local/bin/` exists and is on the executable `PATH`. For example, on Debian the `PATH` is usually configured in `~/.bashrc`
 
 
 Building

@@ -37,7 +37,7 @@ Prerequisites
 
 1. Install JDK (on Debian: `sudo aptitude install default-jdk`)
 
-2. Install [sbt](http://www.scala-sbt.org/) (on Debian: `sudo aptitude install sbt`)
+2. Install [sbt](https://www.scala-sbt.org/download.html)
 
 3. Install [git](https://git-scm.com/) (on Debian: `sudo aptitude install git`)
 

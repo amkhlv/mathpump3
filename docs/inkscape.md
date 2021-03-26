@@ -25,13 +25,13 @@ The procedure is more or less the same for all drawing tools, I will concentrate
 
 Pressing `c` we select __calligraphic pen__ . Then, somewhere (usually in the upper right corner) appears `Fill/Stroke` selector:
 
-[Fill-stroke selector](images/fill-and-stroke.png?raw=true)
+![Fill-stroke selector](images/fill-and-stroke.png?raw=true)
 
 Double click on that `Fill/Stroke` selector and select __Last used style__
 
 Then __draw something__ with the calligraphic pen. The colors may be wrong, that's OK for now.
 
-### Chooseing style: step 2
+### Choosing style: step 2
 
 In the case of __calligraphic pen__, it is wise to __disable `Stroke` and only use `Fill`__
 Then, the color will be determined by the __Fill color__ (and the Stroke color, obviously, will be irrelevant).
@@ -53,7 +53,7 @@ Now you can click on a color in the color bar, and the pen turns that color!
 
 ## Setting SVG size
 
-[Setting image size](images/inkscape_set-image-size.png?raw=true)
+![Setting image size](images/inkscape_set-image-size.png?raw=true)
 
 ## Zooms
 

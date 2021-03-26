@@ -36,7 +36,9 @@ Then __draw something__ with the calligraphic pen. The colors may be wrong, that
 In the case of __calligraphic pen__, it is wise to __disable `Stroke` and only use `Fill`__
 Then, the color will be determined by the __Fill color__ (and the Stroke color, obviously, will be irrelevant).
 
-Now comes probably the most confusing part. We must __exit the calligraphic pen and return to the "select" regime__.
+So, how do we do it? 
+
+Here comes probably the most confusing part. We must __exit the calligraphic pen and return to the "select" regime__.
 (This can be done either by pressing either `Esc` or  `F3`.)
 Then, we select that _something_ which we have just drawn in Step 1. 
 Having it selected, in __Menu Bar__, go to `Object` -> `Fill and Stroke...` . The fill and stroke menu will appear.

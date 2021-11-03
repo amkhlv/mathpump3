@@ -2,6 +2,10 @@
 
 For formulas, I recommend the calligraphic tool (keyboard shortcut `c`).
 
+The default keyboard shortcut for __saving__ is `Ctrl-s`. 
+I recommend redefining it to just `s` (go to `edit` → `preferences` → `interface` → `keyboard shortcuts`).
+it turns out that `Ctrl-s` also remains (this is useful for saving while typing text).
+
 ## Setting up color switching
 
 The procedure for changing drawing color is __very confusing__ 
